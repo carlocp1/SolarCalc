@@ -1,74 +1,32 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Calculadora Solar</title>
-        
-        
-        <meta name="description" content = "Criado para auxiliar pessoas interessadas em transição energética">
-    </head>
-
-    <body>
-        <header>
-            <h1><strong>Calculadora Solar</strong></h1>
-            <p>Descubra o quanto você pode <strong>economizar!</strong></p>
-        </header>
-        <main>
-            <section>
-                <!--Aqui irei falar sobre a transição energetica num breve paragrafo
-                e embaixo em outra section irei colocar os campos para inseriri o valor
-                 e fazer a conta-->
-                <p>A Transição Energetica, uma solução que viabiliza sua autonomia, e reduz o impacto ambiental.   </p>
-            </section>
-            <form id="formSolar">
-            <section id="triagem">
-                    <label for="estado">Estado</label>
-                    <input type="text" id = "estado" placeholder="Digite a sigla aqui..." maxlength="2" required><br><br>
-                    <label for="cidade">Cidade</label>
-                    <input type="text" id = "cidade" required>
-            </section>
-        
-            <section id="entrada">
-                    <label for="gastoMensal">Gasto Mensal com Energia (R$)</label><br>
-                    <input type="number" id="gastoMensal" required placeholder="Ex: 350R$">
-                    <button type="submit" id="btCalcular">Calcular</button>               
-            </section>
-            <section id="resultado" hidden>
-                
-                <h2>Confira o Resultado:</h2>
-                <hr>
-                <table border="1">
-                    <tr>
-                        <td>Potência(Wp)</td><td>Quantidade</td><td>Economia</td>
-                    </tr>
-                    <tr>
-                        <td id="pot550">550</td><td><p id = "qntPaineis"></p></td><td><p id="economia"></p></td>
-                    </tr>
-                    <tr>
-                        <td id="pot700">700</td><td><p id="qntPaineis"></p></td><td><p id="economia"></p></td>
-                    </tr>
-                    <tr>
-                        <td id="pot800">800</td><td id="qntPaineis"></td><td></td>
-                    </tr>
-                </table>
-                
-                
-
-
-                <p> é painel pra porra</p>
-
-
-
-                <img src="./assets/dogeyesclosed.gif" alt="">
-                <hr>
-                <a id="btnZapZap" href="linkdozap">Receber proposta no Whatsapp</a>
-            </section>
-            </form>
-        </main>
-        <footer>
-
-        </footer>
-        <script type="module" src="src/main.js"></script>
-    </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora Solar</title>
+</head>
+<body>
+  <header>
+    <h1>Calculadora Solar</h1>
+    <p>Descubra quantos painéis solares você precisa para cubrir a sua conta de luz!</p>
+  </header>
+  <main>
+    <form>
+      <label for="valor-conta">Valor da conta (R$) </label>
+      <input type="number" name="valor-conta" id="valor-conta">
+      <label for="estado">Estado</label>
+      <select name="estado" id="estado" required>
+        <option value="am">AM</option>
+        <option value="sp">SP</option>
+        <option value="rj">RJ</option>
+      </select>
+      <button id="botao-calcular">Calcular</button>
+    </form>
+    <section>
+      <h1>Resultado</h1>
+      <p id="num-paineis-texto"></p>
+    </section>
+  </main>
+  <script type="module" src="./src/main.js"></script>
+</body>
 </html>

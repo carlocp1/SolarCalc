@@ -1,26 +1,18 @@
 import { calcularNumPaineis } from "./utilidades.js";
 
 
-const form = document.getElementById("formSolar");
-form.addEventListener("submit", function(event) {
+const botaoCalcular = document.getElementById("botao-calcular");
+botaoCalcular.addEventListener("click", function(event) {
   event.preventDefault();
 
   const estadoInput = document.getElementById("estado");
   const siglaEstadual = estadoInput.value.trim().toUpperCase();
-  const cidade = document.getElementById("cidade");
-  const inputValor = document.getElementById("gastoMensal");
-  const gastoMensal = Number(inputValor.value);
+  const inputValorConta = document.getElementById("valor-conta");
+  const gastoMensalReais = Number(inputValorConta.value);
 
-  const resultadoSection = document.getElementById("resultado");
-  if(resultadoSection){
-    resultadoSection.hidden = false;
-    console.log("resultado apareceu");
-  }
-
-  const temp = document.getElementById("qntPaineis");
-  const numPaineis = calcularNumPaineis(gastoMensal, siglaEstadual)
-  temp.innerText = `Vai precisar de ${numPaineis} paineis solares`;
-  // const economia = document.getElementById("economia");
-  // economia.innerText = `voce vai ter uma economia de ${calculaEconomia(gastoMensal)}`;
+  const numPaineis = calcularNumPaineis(gastoMensalReais, siglaEstadual)
+  const resultadoTexto = `Você vai precisa de ${numPaineis} solares para a sua instalação!`;
+  const paragrafoResultado = document.getElementById("num-paineis-texto");
+  paragrafoResultado.innerText = resultadoTexto;
 });
 
