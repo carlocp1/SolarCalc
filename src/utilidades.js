@@ -12,6 +12,20 @@ const irradiaçaoPorEstado = {
   RJ: 5.1,
 };
 
+// Apenas para exemplificar o uso desta calculadora, os cálculos tem base
+// em dois modelos de painel da Canadian. Um de 550W e outro de 435W.
+// Links:
+// https://www.minhacasasolar.com.br/painel-solar-550w-monocristalino-half-cell-canadian-cs6w-550ms-82127
+// https://www.minhacasasolar.com.br/painel-solar-canadian-monocristalino-435w-half-cell-cs6r-435t-82327
+// (Isto não é uma propaganda.)
+// potência -> W
+// área     -> m²
+const paineis = [
+  {potencia: 550, area: 1.95},
+  {potencia: 435, area: 2.56},
+];
+  
+
 // Converte o gasto (em dinheiro) em gasto energético em kW/h.
 // Gasto kW/h = Gasto em R$ / tarifa estadual de energia.
 function calcularGastoKWH(gastoMensalReais, siglaEstadual){
@@ -38,7 +52,7 @@ function calcularPotNecessaria(gastoMensalKWH, siglaEstadual) {
 // Por padrão, os sistemas solares calculados por essa calculadora buscam suprir
 // completamente a média de gasto de energia elétrica mensal de uma residência.
 // Num Painéis = Potência do Sistema / Potência de cada painél
-export function calcularNumPaineis(gastoMensalReais, siglaEstadual) {  
+function calcularNumPaineis(gastoMensalReais, siglaEstadual) {  
   const gastoKWH = calcularGastoKWH(gastoMensalReais, siglaEstadual);
   const potNecessaria = calcularPotNecessaria(gastoKWH, siglaEstadual);
   // Por enquanto, o cáuclo é feito apenas com painéis de potência 550 Wp.
@@ -46,4 +60,68 @@ export function calcularNumPaineis(gastoMensalReais, siglaEstadual) {
   // Nota, sempre arrendondar para cima, para nunca faltar painéis para cubrir a potência.
   const numPaineis = Math.ceil(potNecessaria / potPainel);
   return numPaineis
+}
+
+// Presume-se que o valor recebido da área é em m²
+function calcularAreaPaineis(numPaineis, areaPainel) {
+  // O 1.2 abaixo refere a margem de segurança, pois os painéis não irão ficar 
+  // exatamente colados uns aos outros.
+  return numPaineis * areaPainel * 1.2;
+}
+
+export function calcularResultados(gastoMensalReais, siglaEstadual) {
+  const resultadosPorPainel = [];
+  for (const painel of paineis) {
+    const numPaineis = calcularNumPaineis(gastoMensalReais, siglaEstadual);
+    resultadosPorPainel.push({
+      ...painel,
+      numPaineis,
+      areaInstalaçao: calcularAreaPaineis(numPaineis, painel.area),
+    });
+  }
+  return resultadosPorPainel;
+}
+
+export function criarTabela(resultados) {
+  // If the table already exists, remove it first.
+  const sessaoResultado = document.getElementById("sessao-resultados");
+  const tabelaAnterior = sessaoResultado.querySelector("table");
+  if (tabelaAnterior) {
+    tabelaAnterior.remove();
+  }
+  const tabela = document.createElement("table");
+  const legenda = document.createElement("caption");
+  legenda.innerHTML = "Resultados Para Diferentes Painéis";
+  tabela.appendChild(legenda);
+
+  // Cabeçalho da tabela.
+  tabela.append(document.createElement("thead"));
+  const cabeçalho = document.createElement("tr");
+  tabela.tHead.append(cabeçalho);
+  const colunas = ["Potência do Painel (W)", "Quantidade", "Área Instalação (m²)"];
+  for (const coluna of colunas) {
+    const th = document.createElement("th");
+    th.innerText = coluna;
+    cabeçalho.append(th);
+  }
+
+  // Fileiras com os resultados.
+  const tBody = document.createElement("tbody");
+  tabela.append(tBody);
+  for (const resultado of resultados) {
+    const novaFileira = document.createElement("tr");
+    const valores = [
+      resultado.potencia,
+      resultado.numPaineis,
+      resultado.areaInstalaçao,
+    ];
+    for (const valor of valores) {
+      const novaCelula = document.createElement("td");
+      novaCelula.innerText = valor;
+      novaFileira.append(novaCelula)
+    }
+    tBody.append(novaFileira);
+  }
+
+  return tabela;
 }

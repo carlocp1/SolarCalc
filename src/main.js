@@ -1,4 +1,4 @@
-import { calcularNumPaineis } from "./utilidades.js";
+import { calcularResultados, criarTabela } from "./utilidades.js";
 
 
 const botaoCalcular = document.getElementById("botao-calcular");
@@ -10,9 +10,9 @@ botaoCalcular.addEventListener("click", function(event) {
   const inputValorConta = document.getElementById("valor-conta");
   const gastoMensalReais = Number(inputValorConta.value);
 
-  const numPaineis = calcularNumPaineis(gastoMensalReais, siglaEstadual)
-  const resultadoTexto = `Você vai precisa de ${numPaineis} solares para a sua instalação!`;
-  const paragrafoResultado = document.getElementById("num-paineis-texto");
-  paragrafoResultado.innerText = resultadoTexto;
+  const resultados = calcularResultados(gastoMensalReais, siglaEstadual);
+  const tabela = criarTabela(resultados);
+  const sessaoResultados = document.getElementById("sessao-resultados");
+  sessaoResultados.append(tabela);
 });
 

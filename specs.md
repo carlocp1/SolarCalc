@@ -7,9 +7,8 @@ A Calculadora Solar é uma aplicação web que mostra a quantidade de dinheiro v
 Estas são as informações apresentadas no resultado:
 
 - [x] Quantidade de Painéis
-- [ ] Potência do painel
-    - [ ] Permitir usuário alterar a potência padrão.
-- [ ] Área necessária para instalação.
+- [x] Potência do painel
+- [x] Área necessária para instalação.
 - [ ] Economia média anual.
 - [ ] Geração de energia por mês.
 
