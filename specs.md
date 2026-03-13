@@ -9,8 +9,11 @@ Estas são as informações apresentadas no resultado:
 - [x] Quantidade de Painéis
 - [x] Potência do painel
 - [x] Área necessária para instalação.
-- [ ] Economia média anual.
-- [ ] Geração de energia por mês.
+
+Funções necessárias para a calculadora:
+
+- [ ] Seletor de localização preciso (no mínimo, estado e cidade.)
+- [ ] Fazer busca de dados atuais de tarifas e irradiação solar por meio de API.
 
 # Tecnologias
 
