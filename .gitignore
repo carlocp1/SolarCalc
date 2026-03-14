@@ -1,0 +1,3 @@
+# Ignore este diretório, pois o gerenciador de pacotes (pnpm) gerencia
+# as dependências sem precisar do git.
+node_modules/
