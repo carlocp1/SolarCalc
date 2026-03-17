@@ -1,5 +1,76 @@
 import { parse } from "csv-parse"
 import { Readable } from "node:stream"
+import { writeFile, readFile } from "node:fs/promises";
+
+async function salvarDadosDists(distsResidenciais) {
+  const conteudoJSON = JSON.stringify({
+    dataDaBusca: new Date(),
+    distsResidenciais,
+  });
+  return writeFile("data/dados-dists-residenciais.json", conteudoJSON);
+}
+
+async function lerDadosDistsAnteriores() {
+  try {
+    const conteudoJSON = await readFile("data/dados-dists-residenciais.json");
+    return JSON.parse(conteudoJSON);
+  } catch (err) {
+    if (err.code === "ENOENT") {
+      return {
+        // Caso o arquivo backup não exista, retorne um resultado no formato
+        // apropriado, porém com uma data muito antiga.
+        // Desta forma, o programa irá buscar novos dados de distribuidoras da ANEEL.
+        dataDaBusca: new Date(0),
+        distsResidenciais:  [],
+      };
+    }
+  }
+}
+
+async function obterDistsResidenciais() {
+  let { dataDaBusca, distsResidenciais } = await lerDadosDistsAnteriores();
+  // Se uma busca bem sucedida ocorreu nas últimas 24 horas, use ela ao
+  // invés da baixar os dados novamente.
+  const UM_DIA_EM_MS = 1000 * 60 * 60 * 24;
+  const diferençaTempo = new Date() - new Date(dataDaBusca).getTime();
+  if( diferençaTempo <= UM_DIA_EM_MS) {
+    return distsResidenciais;
+  }
+  // Faça uma nova busca na API da ANEEL caso já faça mais de 24 horas
+  // desde a última.
+  const todasDistribuidoras = await obterDadosDistribuidoras();
+  distsResidenciais = [];
+  const anoAtual = String(new Date().getFullYear());
+  const siglasDistribuidoras = [];
+  todasDistribuidoras
+    .filter(d => (
+      // Filtrar por tarifas residenciais do ano atual.
+      d.DscClasse === "Residencial"
+      && d.DscBaseTarifaria.includes("Tarifa")
+      && d.VlrTE
+      && d.SigAgente
+      && d.DatInicioVigencia.includes(anoAtual)
+      && d.DscUnidadeTerciaria === "MWh"
+    ))
+    .sort((distA, distB) => {
+      // Reordenar o resultado com base no início de vigência da tarifa.
+      // Tarifas mais recentes primeiro.
+      const vigenciaA = new Date(distA.DatInicioVigencia);
+      const vigenciaB = new Date(distB.DatInicioVigencia);
+      return vigenciaB - vigenciaA;
+    })
+    .forEach(d => {
+      // Apenas salve a tarifa mais recente, descartando as antigas.
+      if (siglasDistribuidoras.includes(d.SigAgente)) {
+        return;
+      }
+      distsResidenciais.push(d);
+      siglasDistribuidoras.push(d.SigAgente);
+    })
+  
+  await salvarDadosDists(distsResidenciais);
+  return distsResidenciais;
+}
 
 async function obterDadosDistribuidoras() {
   const url = await obterLinkArquivoCSV();
@@ -44,32 +115,4 @@ async function obterLinkArquivoCSV() {
 }
 
 
-const todasDistribuidoras = await obterDadosDistribuidoras();
-
-const distResidenciais = [];
-const anoAtual = String(new Date().getFullYear());
-const siglasDistribuidoras = [];
-todasDistribuidoras
-  .filter(d => (
-    // Filtrar por tarifas residenciais do ano atual.
-    d.DscClasse === "Residencial"
-    && d.DscBaseTarifaria.includes("Tarifa")
-    && d.VlrTE
-    && d.SigAgente
-    && d.DatInicioVigencia.includes(anoAtual)
-  ))
-  .sort((distA, distB) => {
-    // Reordenar o resultado com base no início de vigência da tarifa.
-    // Tarifas mais recentes primeiro.
-    const vigenciaA = new Date(distA.DatInicioVigencia);
-    const vigenciaB = new Date(distB.DatInicioVigencia);
-    return vigenciaB - vigenciaA;
-  })
-  .forEach(d => {
-    // Apenas salve a tarifa mais recente, descartando as antigas.
-    if (siglasDistribuidoras.includes(d.SigAgente)) {
-      return;
-    }
-    distResidenciais.push(d);
-    siglasDistribuidoras.push(d.SigAgente);
-  })
+await obterDistsResidenciais();
