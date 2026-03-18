@@ -1,6 +1,5 @@
-import { parse } from "csv-parse"
-import { Readable } from "node:stream"
 import { writeFile, readFile } from "node:fs/promises";
+import { obterLinkArquivoANEEL, obterDadosCSV } from "./utils.js";
 
 async function salvarDadosDists(distsResidenciais) {
   const conteudoJSON = JSON.stringify({
@@ -38,7 +37,11 @@ async function obterDistsResidenciais() {
   }
   // Faça uma nova busca na API da ANEEL caso já faça mais de 24 horas
   // desde a última.
-  const todasDistribuidoras = await obterDadosDistribuidoras();
+  const url = await obterLinkArquivoANEEL(
+    "tarifas-distribuidoras-energia-eletrica",
+    "CSV"
+  );
+  const todasDistribuidoras = await obterDadosCSV(url);
   const anoAtual = String(new Date().getFullYear());
   const siglasDistribuidoras = [];
   distsResidenciais = todasDistribuidoras
@@ -74,46 +77,4 @@ async function obterDistsResidenciais() {
   
   await salvarDadosDists(distsResidenciais);
   return distsResidenciais;
-}
-
-async function obterDadosDistribuidoras() {
-  const url = await obterLinkArquivoCSV();
-  const resposta = await fetch(url);
-
-  return new Promise((resolve, reject) => {
-    const resultados = [];
-    // Converta cada fileira num objeto cujo as propriedades são o cabeçalho
-    // de cada coluna, e adiciona na lista de resultados.
-    Readable.fromWeb(resposta.body)
-      .pipe(parse({ columns: true, delimiter: ";" }))
-      .on("data", (fileira) => resultados.push(fileira))
-      .on("end", () => resolve(resultados))
-      .on("error", (err) => reject(err));
-  });
-}
-
-async function obterLinkArquivoCSV() {
-  // Obtenha o URL que aponta pro arquivo CSV mais recente deste conjunto de dados.
-  const url = "https://dadosabertos.aneel.gov.br/api/3/action/package_show";
-  const resposta = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      id: "tarifas-distribuidoras-energia-eletrica",
-    }),
-  });
-
-  const dados = await resposta.json();
-  if (!dados.success) {
-    throw dados.error;
-  }
-  const recursos = dados.result.resources;
-  const recursoCSV = recursos.find(r => r.format === "CSV");
-
-  if (!recursoCSV) {
-    throw new Error ("Arquivo CSV de tarifas não foi encontrado.");
-  }
-  return recursoCSV.url;
 }
