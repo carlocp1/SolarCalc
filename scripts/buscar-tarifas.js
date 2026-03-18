@@ -7,12 +7,12 @@ async function salvarDadosDists(distsResidenciais) {
     dataDaBusca: new Date(),
     distsResidenciais,
   });
-  return writeFile("data/dados-dists-residenciais.json", conteudoJSON);
+  return writeFile("server/data/dados-dists-residenciais.json", conteudoJSON);
 }
 
 async function lerDadosDistsAnteriores() {
   try {
-    const conteudoJSON = await readFile("data/dados-dists-residenciais.json");
+    const conteudoJSON = await readFile("server/data/dados-dists-residenciais.json");
     return JSON.parse(conteudoJSON);
   } catch (err) {
     if (err.code === "ENOENT") {
@@ -39,10 +39,9 @@ async function obterDistsResidenciais() {
   // Faça uma nova busca na API da ANEEL caso já faça mais de 24 horas
   // desde a última.
   const todasDistribuidoras = await obterDadosDistribuidoras();
-  distsResidenciais = [];
   const anoAtual = String(new Date().getFullYear());
   const siglasDistribuidoras = [];
-  todasDistribuidoras
+  distsResidenciais = todasDistribuidoras
     .filter(d => (
       // Filtrar por tarifas residenciais do ano atual.
       d.DscClasse === "Residencial"
@@ -59,14 +58,19 @@ async function obterDistsResidenciais() {
       const vigenciaB = new Date(distB.DatInicioVigencia);
       return vigenciaB - vigenciaA;
     })
-    .forEach(d => {
+    .flatMap(d => {
       // Apenas salve a tarifa mais recente, descartando as antigas.
       if (siglasDistribuidoras.includes(d.SigAgente)) {
-        return;
+        return [];
       }
-      distsResidenciais.push(d);
       siglasDistribuidoras.push(d.SigAgente);
-    })
+      return [{
+        nome: d.SigAgente,
+        tarifaEnergiaKwh: parseFloat(d.VlrTE.replace(',', '.')) / 1000,
+        tarifaUsoKwh: d.VlrTUSD ? parseFloat(d.VlrTUSD.replace(',', '.')) / 1000 : null,
+        inicioVigencia: d.DatInicioVigencia,
+      }];
+    });
   
   await salvarDadosDists(distsResidenciais);
   return distsResidenciais;
