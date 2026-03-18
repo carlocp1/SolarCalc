@@ -117,6 +117,3 @@ async function obterLinkArquivoCSV() {
   }
   return recursoCSV.url;
 }
-
-
-await obterDistsResidenciais();
