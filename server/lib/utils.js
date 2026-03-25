@@ -14,7 +14,6 @@ export async function obterLinkArquivoANEEL(conjuntoDados, formato) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      //id: "tarifas-distribuidoras-energia-eletrica",
       id: conjuntoDados,
     }),
   });
