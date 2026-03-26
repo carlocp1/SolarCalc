@@ -64,3 +64,8 @@ export async function* iterarDadosCSV(url) {
     yield linha;
   }
 }
+
+export function haVersaoNova(dataModificaçaoAtual, dataModificaçaoAnterior) {
+  const diferençaTempo = new Date(dataModificaçaoAtual) - new Date(dataModificaçaoAnterior);
+  return diferençaTempo > 0;
+}

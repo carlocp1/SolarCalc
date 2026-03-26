@@ -1,4 +1,4 @@
-import { obterRecursoANEEL, iterarDadosCSV } from "./utils.js";
+import { obterRecursoANEEL, iterarDadosCSV, haVersaoNova } from "./utils.js";
 import { carregarLocalmente, salvarLocalmente } from "./dados.js";
 
 // A base BDGD de dados usa um código DIST para identificar a distribuidora
@@ -136,9 +136,8 @@ export async function obterTarifasPorDist() {
   if (dadosAnteriores) {
     const tarifasPorDist = dadosAnteriores.dados;
     const dataModificaçaoAnterior = dadosAnteriores.dataModificaçao;
-    const diferençaTempo = new Date(dataModificaçao) - new Date(dataModificaçaoAnterior);
     // Caso não haja versão nova do arquivo desde a última vez, retorne a versão já salva.
-    if (diferençaTempo === 0) {
+    if (!haVersaoNova(dataModificaçao, dataModificaçaoAnterior)) {
       return tarifasPorDist;
     }
   }
