@@ -1,29 +1,35 @@
-// Tornar estas funções genericas para eu poder reutiliza-las
-// adiconar novo parametro com tipo de dado que quero salvar
-// o argumento poderia ser do tipo string com suporte para valores
-// especificos, tipo "tarifas", "municipios", etc
+import { writeFile, readFile } from "node:fs/promises";
 
-export async function salvarDadosTarifas(tarifasPorDist) {
-  const conteudoJSON = JSON.stringify({
-    dataDaBusca: new Date(),
-    tarifasPorDist,
-  });
-  return writeFile("server/data/tarifas.json", conteudoJSON);
+const conjuntoDados = {
+  "tarifas-por-distribuidora": {
+    arquivo: "server/data/tarifas-por-distribuidora.json",
+  },
 }
 
-export async function lerDadosTarifas() {
+export async function salvarLocalmente(nomeDados, dados, dataModificaçao) {
+  const conteudoJSON = JSON.stringify({
+    nomeDados,
+    dados,
+    dataModificaçao,
+  });
+  if (!conjuntoDados[nomeDados]) {
+    throw new Error(`O conjunto de dados ${nomeDados} não é válido.`);
+  }
+  const arquivo = conjuntoDados[nomeDados].arquivo;
+  return writeFile(arquivo, conteudoJSON);
+}
+
+export async function carregarLocalmente(nomeDados) {
+  if (!conjuntoDados[nomeDados]) {
+    throw new Error(`O conjunto de dados ${nomeDados} não é válido.`);
+  }
+  const arquivo = conjuntoDados[nomeDados].arquivo;
   try {
-    const conteudoJSON = await readFile("server/data/tarifas.json");
+    const conteudoJSON = await readFile(arquivo);
     return JSON.parse(conteudoJSON);
   } catch (err) {
     if (err.code === "ENOENT") {
-      return {
-        // Caso o arquivo backup não exista, retorne um resultado no formato
-        // apropriado, porém com uma data muito antiga.
-        // Desta forma, o programa irá buscar novos dados de tarifas da ANEEL.
-        dataDaBusca: new Date(0),
-        tarifasPorDist:  [],
-      };
+      return null;
     }
   }
 }

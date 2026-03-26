@@ -1,6 +1,5 @@
-import { writeFile, readFile } from "node:fs/promises";
-import { obterLinkArquivoANEEL, iterarDadosCSV } from "./utils.js";
-import { lerDadosTarifas, salvarDadosTarifas } from "./dados.js";
+import { obterRecursoANEEL, iterarDadosCSV } from "./utils.js";
+import { carregarLocalmente, salvarLocalmente } from "./dados.js";
 
 // A base BDGD de dados usa um código DIST para identificar a distribuidora
 // de uma determinada instalação.
@@ -125,23 +124,26 @@ const distPorCodigo = {
   5374: "COOPERZEM"
 };
 
-async function obterTarifasPorDist() {
-  let { dataDaBusca, tarifasPorDist } = await lerDadosTarifas();
-  // Se uma busca bem sucedida ocorreu nas últimas 24 horas, use ela ao
-  // invés da baixar os dados novamente.
-  const UM_DIA_EM_MS = 1000 * 60 * 60 * 24;
-  const diferençaTempo = new Date() - new Date(dataDaBusca).getTime();
-  if( diferençaTempo <= UM_DIA_EM_MS) {
-    return tarifasPorDist;
-  }
-
-  // Faça uma nova busca na API da ANEEL caso já faça mais de 24 horas
-  // desde a última.
-  tarifasPorDist = {};
-  const url = await obterLinkArquivoANEEL(
+export async function obterTarifasPorDist() {
+  // Obtenha dados localmente (se presentes) e a data de modificação dos dados
+  // na última vez que o programa trabalhou com eles.
+  const dadosAnteriores = await carregarLocalmente("tarifas-por-distribuidora");
+  // Busque na API o mesmo recurso, para ver se há uma versão nova do conjunto.
+  const { url, dataModificaçao } = await obterRecursoANEEL(
     "tarifas-distribuidoras-energia-eletrica",
     "CSV"
   );
+  if (dadosAnteriores) {
+    const tarifasPorDist = dadosAnteriores.dados;
+    const dataModificaçaoAnterior = dadosAnteriores.dataModificaçao;
+    const diferençaTempo = new Date(dataModificaçao) - new Date(dataModificaçaoAnterior);
+    // Caso não haja versão nova do arquivo desde a última vez, retorne a versão já salva.
+    if (diferençaTempo === 0) {
+      return tarifasPorDist;
+    }
+  }
+
+  const tarifasPorDist = {};
   for await (const dist of iterarDadosCSV(url)) {
     // Se o objeto de distribuidora atual não passar nestes critérios,
     // ignore e vá para o próximo.
@@ -177,7 +179,11 @@ async function obterTarifasPorDist() {
     } 
     tarifasPorDist[nomeDist] = tarifaAtual;
   }
-  await salvarDadosTarifas(tarifasPorDist);
+  await salvarLocalmente(
+    "tarifas-por-distribuidora",
+    tarifasPorDist,
+    dataModificaçao,
+  );
   return tarifasPorDist;
 }
 
@@ -221,6 +227,3 @@ async function obterDistPorMunicipio() {
   }
   return distPorMunicipio;
 }
-
-const distPorMunicipio = await obterDistPorMunicipio();
-console.log("Something");

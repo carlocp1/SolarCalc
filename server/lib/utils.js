@@ -6,7 +6,7 @@ import unzipper from "unzipper";
 // associados a eles. Essa função permite que buscar o link de um arquivo de
 // formato específico.
 // Até o momento, eu sei que estes formatos são suportados: "ZIP", "CSV"
-export async function obterLinkArquivoANEEL(conjuntoDados, formato) {
+export async function obterRecursoANEEL(conjuntoDados, formato) {
   const url = "https://dadosabertos.aneel.gov.br/api/3/action/package_show";
   const resposta = await fetch(url, {
     method: "POST",
@@ -23,12 +23,15 @@ export async function obterLinkArquivoANEEL(conjuntoDados, formato) {
     throw dados.error;
   }
   const recursos = dados.result.resources;
-  const arquivo = recursos.find(r => r.format === formato);
+  const recurso = recursos.find(r => r.format === formato);
 
-  if (!arquivo) {
-    throw new Error (`Arquivo ${formato} não foi encontrado.`);
+  if (!recurso) {
+    throw new Error (`Recurso ${formato} não foi encontrado.`);
   }
-  return arquivo.url;
+  return {
+    url: recurso.url,
+    dataModificaçao: recurso.metadata_modified,
+  };
 }
 
 export async function* iterarDadosCSV(url) {
