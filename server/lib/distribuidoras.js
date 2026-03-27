@@ -186,13 +186,22 @@ export async function obterTarifasPorDist() {
   return tarifasPorDist;
 }
 
-async function obterDistPorMunicipio() {
-  const url = await obterLinkArquivoANEEL(
+export async function obterDistsPorMunicipio() {
+  const dadosAnteriores = await carregarLocalmente("dists-por-municipio");
+  // Busque na API o mesmo recurso, para ver se há uma versão nova do conjunto.
+  const { url, dataModificaçao } = await obterRecursoANEEL(
     "base-de-dados-geografica-da-distribuidora-bdgd",
     "ZIP",
   );
-
-  const distPorMunicipio = Object.create(null);
+  if (dadosAnteriores) {
+    const distsPorMunicipio = dadosAnteriores.dados;
+    const dataModificaçaoAnterior = dadosAnteriores.dataModificaçao;
+    // Caso não haja versão nova do arquivo desde a última vez, retorne a versão já salva.
+    if (!haVersaoNova(dataModificaçao, dataModificaçaoAnterior)) {
+      return distsPorMunicipio;
+    }
+  }
+  const distsPorMunicipio = Object.create(null);
   // Base de dado geográfica, onde cada valor se refere a um ponto
   // no mapa com dados associados sobre da rede elétrica.
   for await (const ponto of iterarDadosCSV(url)) {
@@ -202,20 +211,20 @@ async function obterDistPorMunicipio() {
     const codigoDist = ponto.DIST;
 
     // Adicione um "slot" para o município se ele ainda não foi listado.
-    if (!(municipio in distPorMunicipio)) {
-      distPorMunicipio[municipio] = [];
+    if (!(municipio in distsPorMunicipio)) {
+      distsPorMunicipio[municipio] = [];
     }
     // Caso ambos o município e a distribuidora já estejam listados, apenas
     // aumente o contador de vezes que a distribuidora apareceu do banco de dados.
-    if (distPorCodigo[municipio].some(dist => dist.codigoDist === codigoDist)) {
-      const distribuidora = distPorMunicipio[municipio].find(
+    else if (distsPorMunicipio[municipio].some(dist => dist.codigoDist === codigoDist)) {
+      const distribuidora = distsPorMunicipio[municipio].find(
         dist => dist.codigoDist === codigoDist
       );
       distribuidora.numPontos++;
     }
     else {
       // Caso contrário, crie um "slot" para a distribuidora no município.
-      distPorMunicipio[municipio].push({
+      distsPorMunicipio[municipio].push({
         codigoDist,
         // O número de vezes na base de dados que esta distribuidora aparece
         // listada para este município.
@@ -224,5 +233,10 @@ async function obterDistPorMunicipio() {
       });
     }
   }
-  return distPorMunicipio;
+  await salvarLocalmente(
+    "dists-por-municipio",
+    distsPorMunicipio,
+    dataModificaçao,
+  );
+  return distsPorMunicipio;
 }

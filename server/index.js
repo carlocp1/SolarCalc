@@ -1,4 +1,5 @@
-import { obterTarifasPorDist } from "./lib/distribuidoras.js";
+import { obterDistsPorMunicipio, obterTarifasPorDist } from "./lib/distribuidoras.js";
 
 const tarifasPorDist = await obterTarifasPorDist();
-console.log(tarifasPorDist);
+const distsPorMunicipio = await obterDistsPorMunicipio();
+console.log(distsPorMunicipio);
