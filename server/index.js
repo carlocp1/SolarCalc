@@ -1,4 +1,10 @@
+import { obterMunicipios } from "./lib/ibge.js";
 import { obterIrradiacaoMediaDiaria } from "./lib/irradiacao.js";
 
-const irradiacao = await obterIrradiacaoMediaDiaria(-22.9056, -47.0608, 2026);
-console.log(irradiacao);
+const municipios = await obterMunicipios();
+const todosMunicipios = Object.values(municipios).flat();
+
+const campinas = todosMunicipios.find(({ nome }) => nome === "Campinas");
+const { lat, lon } = campinas.coordenadas;
+const irradiacaoCampinas = await obterIrradiacaoMediaDiaria(lat, lon, 2025);
+console.log(irradiacaoCampinas);
