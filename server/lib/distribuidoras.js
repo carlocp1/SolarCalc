@@ -1,4 +1,4 @@
-import { obterRecursoANEEL, iterarDadosCSV, haVersaoNova } from "./utils.js";
+import { obterRecursoANEEL, iterarDadosCSV, haVersaoNova } from "./aneel.js";
 import { carregarLocalmente, salvarLocalmente } from "./dados.js";
 
 // A base BDGD de dados usa um código DIST para identificar a distribuidora

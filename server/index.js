@@ -1,5 +1,4 @@
-import { obterDistsPorMunicipio, obterTarifasPorDist } from "./lib/distribuidoras.js";
+import { obterEstados } from "./lib/ibge.js";
 
-const tarifasPorDist = await obterTarifasPorDist();
-const distsPorMunicipio = await obterDistsPorMunicipio();
-console.log(distsPorMunicipio);
+const estados = await obterEstados();
+console.log(estados);
