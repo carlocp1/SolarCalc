@@ -13,7 +13,7 @@ Estas são as informações apresentadas no resultado:
 Funções necessárias para a calculadora:
 
 - [ ] Seletor de localização preciso (no mínimo, estado e cidade.)
-- [ ] Fazer busca de dados atuais de tarifas e irradiação solar por meio de API.
+- [x] Fazer busca de dados atuais de tarifas e irradiação solar por meio de API.
 
 # Tecnologias
 
