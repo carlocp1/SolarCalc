@@ -1,4 +1,4 @@
-import { obterEstados } from "./lib/ibge.js";
+import { obterIrradiacaoMediaDiaria } from "./lib/irradiacao.js";
 
-const estados = await obterEstados();
-console.log(estados);
+const irradiacao = await obterIrradiacaoMediaDiaria(-22.9056, -47.0608, 2026);
+console.log(irradiacao);
