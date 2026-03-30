@@ -10,6 +10,9 @@ const conjuntoDados = {
   "estados-brasileiros": {
     arquivo: "server/data/estados-brasileiros.json",
   },
+  "municipios-brasileiros": {
+    arquivo: "server/data/municipios-brasileiros.json",
+  }
 }
 
 export async function salvarLocalmente(nomeDados, dados, dataModificaçao) {
