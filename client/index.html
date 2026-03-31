@@ -15,13 +15,13 @@
     <form>
       <label for="valor-conta">Valor da conta (R$) </label>
       <input type="number" name="valor-conta" id="valor-conta">
-      <label for="estado">Estado</label>
-      <select name="estado" id="estado" required>
-        <option value="am">AM</option>
-        <option value="sp">SP</option>
-        <option value="rj">RJ</option>
-      </select>
-      <button id="botao-calcular">Calcular</button>
+      <fieldset>
+        <label for="estado">Estado</label>
+        <select name="estado" id="estado" required></select>
+        <label for="municipio">Município</label>
+        <select name="municipio" id="municipio"></select>
+      </fieldset>
+      <button id="botao-calcular" disabled>Calcular</button>
     </form>
     <section id="sessao-resultados">
       <h1>Resultado</h1>
