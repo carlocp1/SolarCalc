@@ -1,10 +1,23 @@
-import { obterMunicipios } from "./lib/ibge.js";
-import { obterIrradiacaoMediaDiaria } from "./lib/irradiacao.js";
+import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
 
-const municipios = await obterMunicipios();
-const todosMunicipios = Object.values(municipios).flat();
+const app = express();
+const PORT = 3000;
 
-const campinas = todosMunicipios.find(({ nome }) => nome === "Campinas");
-const { lat, lon } = campinas.coordenadas;
-const irradiacaoCampinas = await obterIrradiacaoMediaDiaria(lat, lon, 2025);
-console.log(irradiacaoCampinas);
+// Concertar o fato de __dirname não ser presente em módulos ES.
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Sirva os arquivos estáticos (CSS, JS, etc.)
+// Esta função também já serve o arquivo index.html em '/'.
+app.use(
+  express.static(
+    path.join(__dirname, "..", "client")
+  )
+);
+
+// Iniciar servidor.
+app.listen(PORT, () => {
+  console.log(`Servidor está rodando em http://localhost:${PORT}`);
+});
