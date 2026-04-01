@@ -12,6 +12,14 @@ export function inicializarSeletorEstado() {
   seletor.id = "estado";
   seletor.required = true;
 
+  // Adicionar opção padrão.
+  const optPadrao = document.createElement("option");
+  optPadrao.value = "";
+  optPadrao.textContent = "Selecione um estado";
+  optPadrao.disabled = true;
+  optPadrao.selected = true;
+  seletor.append(optPadrao);
+      
   for (const { sigla, nome } of estados) {
     const option = document.createElement("option");
     option.value = sigla;
@@ -32,12 +40,20 @@ export function inicializarSeletorMunicipio() {
   seletor.id = "municipio";
   seletor.required = true;
 
+  // Adicionar opção padrão.
+  const optPadrao = document.createElement("option");
+  optPadrao.value = "";
+  optPadrao.textContent = "Selecione um município";
+  optPadrao.disabled = true;
+  optPadrao.selected = true;
+  seletor.append(optPadrao);
+
   const seletorEstado = document.getElementById("estado");
 
   function atualizarSeletorMunicipio() {
     // Remova os municípios do Estado anterior.
-    while (seletor.hasChildNodes()) {
-      seletor.firstChild.remove();
+    while (seletor.childNodes.length > 1) {
+      seletor.childNodes[1].remove();
     }
     const siglaEstadual = seletorEstado.value;
     for (const municipio of municipios[siglaEstadual]) {
@@ -46,10 +62,8 @@ export function inicializarSeletorMunicipio() {
       option.textContent = municipio.nome;
       seletor.append(option);
     }
+    optPadrao.selected = true;
   }
-  // Use a função uma vez para inicializar a opções, e a chame novamente
-  // sempre que o Estado for alterado.
-  atualizarSeletorMunicipio();
   seletorEstado.addEventListener("change", atualizarSeletorMunicipio);
 
   const fieldset = document.getElementById("localidade");
