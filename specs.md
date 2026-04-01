@@ -22,3 +22,5 @@ Será empregado na implementação do web app as seguintes tecnologias:
 - HTML5
 - CSS
 - JavaScript
+- Node.js
+- Express.js
