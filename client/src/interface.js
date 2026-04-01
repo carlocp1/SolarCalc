@@ -1,5 +1,18 @@
 import { obterLocalidades } from "./obter-dados.js";
 
+// ----- Input Valor da Conta -----
+export function formatarInputReais(event) {
+  const input = event.currentTarget;
+  let value = input.value.replace(/\D/g, "");
+  value = (value / 100).toFixed(2);
+  let [inteiro, decimal] = value.split(".");
+  // Adiciona separador de milhar (.)
+  inteiro = inteiro.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  input.value = `${inteiro},${decimal}`;
+}
+
+// ----- Seletores de Localidade (Estado e Município) -----
+
 // Conjunto de dados das APIs.
 const { estados, municipios } = await obterLocalidades();
 
@@ -69,6 +82,9 @@ export function inicializarSeletorMunicipio() {
   const fieldset = document.getElementById("localidade");
   fieldset.append(label, seletor);
 }
+
+
+// ----- Tabela de Resultados -----
 
 export function criarTabela(resultados) {
   // If the table already exists, remove it first.

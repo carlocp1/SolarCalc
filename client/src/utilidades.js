@@ -81,3 +81,9 @@ export function calcularResultados(gastoMensalReais, siglaEstadual) {
   }
   return resultadosPorPainel;
 }
+
+export function lerValorReais(stringReais) {
+  let formatado = stringReais.replace(".", "");
+  formatado = formatado.replace(",", ".");
+  return Number(formatado);
+}
