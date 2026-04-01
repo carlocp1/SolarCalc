@@ -2,6 +2,7 @@ import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 import { obterEstados, obterMunicipios } from "./lib/ibge.js";
+import { obterIrradiacaoMediaDiaria } from "./lib/irradiacao.js";
 
 const app = express();
 const PORT = 3000;
@@ -26,6 +27,18 @@ app.use(
 // para o criar o <select> widget no formulário HTML.
 app.get("/api/localidades", (req, res) => {
   res.json({ estados, municipios });
+});
+
+// Enviar irradiação solar referente ao município recebido.
+app.get("/api/irradiacao/:municipio", async (req, res) => {
+  const codigoMunicipio = Number(req.params.municipio);
+  const municipio = Object.values(municipios)
+    .flat()
+    .find(mun => mun.id === codigoMunicipio);
+  const { lat, lon } = municipio.coordenadas;
+  const anoAnterior = (new Date()).getFullYear() - 1;
+  const irradiacao = await obterIrradiacaoMediaDiaria(lat, lon, anoAnterior);
+  res.json(irradiacao);
 });
 
 // Iniciar servidor.
