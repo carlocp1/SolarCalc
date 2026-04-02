@@ -1,16 +1,6 @@
 // Este módulo implementa os principais operações da calculadora.
 
-const tarifasEstaduais = {
-  AM: 0.852,
-  SP: 0.730,
-  RJ: 0.865,
-};
-
-const irradiaçaoPorEstado = {
-  AM: 5.5,
-  SP: 5.4,
-  RJ: 5.1,
-};
+import { obterIrradiacao, obterTarifaMunicipio } from "./obter-dados.js";
 
 // Apenas para exemplificar o uso desta calculadora, os cálculos tem base
 // em dois modelos de painel da Canadian. Um de 550W e outro de 435W.
@@ -27,10 +17,9 @@ const paineis = [
   
 
 // Converte o gasto (em dinheiro) em gasto energético em kW/h.
-// Gasto kW/h = Gasto em R$ / tarifa estadual de energia.
-function calcularGastoKWH(gastoMensalReais, siglaEstadual){
-  const tarifaEstadual = tarifasEstaduais[siglaEstadual];
-  return Math.round(gastoMensalReais / tarifaEstadual);
+// Gasto kW/h = Gasto em R$ / tarifa municipal de energia.
+function calcularGastoKWH(gastoMensalReais, tarifaMunicipal){
+  return Math.round(gastoMensalReais / tarifaMunicipal);
 }
 
 // Calcula a potência necessária de um sistema de painéis solares para suprir
@@ -41,20 +30,19 @@ function calcularGastoKWH(gastoMensalReais, siglaEstadual){
 //   por dia, medido em kWh/m2/dia.
 // * Por padrão, o valor de perda utilizado nesses calculos é de 25%, restando
 //   apenas 75%.
-function calcularPotNecessaria(gastoMensalKWH, siglaEstadual) {
-  const irradiaçao = irradiaçaoPorEstado[siglaEstadual];
+function calcularPotNecessaria(gastoMensalKWH, irradiacaoMunicipio) {
   // Consideração de perda do sistema.
   const perda = 0.75;
-  return gastoMensalKWH / (irradiaçao * 30 * perda);
+  return gastoMensalKWH / (irradiacaoMunicipio * 30 * perda);
 }
 
 // Calcula a quantidade de painéis solares necessários para suprir o sistema.
 // Por padrão, os sistemas solares calculados por essa calculadora buscam suprir
 // completamente a média de gasto de energia elétrica mensal de uma residência.
 // Num Painéis = Potência do Sistema / Potência de cada painél
-function calcularNumPaineis(gastoMensalReais, siglaEstadual) {  
-  const gastoKWH = calcularGastoKWH(gastoMensalReais, siglaEstadual);
-  const potNecessaria = calcularPotNecessaria(gastoKWH, siglaEstadual);
+function calcularNumPaineis(gastoMensalReais, tarifaMunicipal, irradiacaoMunicipio) {  
+  const gastoKWH = calcularGastoKWH(gastoMensalReais, tarifaMunicipal);
+  const potNecessaria = calcularPotNecessaria(gastoKWH, irradiacaoMunicipio);
   // Por enquanto, o cáuclo é feito apenas com painéis de potência 550 Wp.
   const potPainel = 0.55;
   // Nota, sempre arrendondar para cima, para nunca faltar painéis para cubrir a potência.
@@ -69,10 +57,14 @@ function calcularAreaPaineis(numPaineis, areaPainel) {
   return numPaineis * areaPainel * 1.2;
 }
 
-export function calcularResultados(gastoMensalReais, siglaEstadual) {
+export async function calcularResultados(gastoMensalReais, codigoMunicipio) {
+  // Obter valores externos necessários para o cálculo.
+  const tarifaMunicipal = await obterTarifaMunicipio(codigoMunicipio);
+  const irradiacaoMunicipio = await obterIrradiacao(codigoMunicipio);
+
   const resultadosPorPainel = [];
   for (const painel of paineis) {
-    const numPaineis = calcularNumPaineis(gastoMensalReais, siglaEstadual);
+    const numPaineis = calcularNumPaineis(gastoMensalReais, tarifaMunicipal, irradiacaoMunicipio);
     resultadosPorPainel.push({
       ...painel,
       numPaineis,

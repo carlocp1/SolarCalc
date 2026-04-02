@@ -24,11 +24,11 @@ formulario.addEventListener("submit", async (event) => {
   const gastoMensalReais = lerValorReais(inputValorConta.value);
   const codigoMunicipio = Number(dadosForm.get("municipio"));
 
-  // const resultados = calcularResultados(gastoMensalReais, siglaEstadual);
+  const resultados = await calcularResultados(gastoMensalReais, codigoMunicipio);
 
-  // const tabela = criarTabela(resultados);
-  // const sessaoResultados = document.getElementById("sessao-resultados");
-  // sessaoResultados.append(tabela);
-
+  const tabela = criarTabela(resultados);
+  const sessaoResultados = document.getElementById("sessao-resultados");
+  sessaoResultados.append(tabela);
+  sessaoResultados.hidden = false;
 });
 
