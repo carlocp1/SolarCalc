@@ -249,3 +249,28 @@ export async function obterDistsPorMunicipio() {
   );
   return distsPorMunicipio;
 }
+
+export async function obterTarifaMunicipio(codigoMunicipio, conjuntoDados) {
+  const { tarifasPorDist, distsPorMunicipio } = conjuntoDados;
+  // Obtenha a tarifa da distribuidora mais frequente do município.
+  // Caso a distribuidora não conste na base de dados, pegue a segunda mais frequente.
+  const distsMunicipio = distsPorMunicipio[codigoMunicipio];
+  // Um array com os objetos de distribuidora em ordem decrescente de frequência.
+  const distsFrequencia = distsMunicipio
+    .toSorted((distA, distB) => {
+      return (distA.numPontos - distB.numPontos) ? 1 : -1;
+    });
+  // Tente obter as tarifas, caso não encontre, tente a próxima dist mais frequente.
+  for (const dist of distsFrequencia) {
+    const nomeDist = distPorCodigo[dist.codigoDist];
+    const tarifas = tarifasPorDist[nomeDist];
+    if (!tarifas) {
+      continue;
+    }
+    const { tarifaEnergiaKwh, tarifaUsoKwh } = tarifas;
+    // O taxa tarifária para um consumidor residência consiste na soma da tarifa
+    // de uso da rede elétrica e da tarifa de energia em si.
+    const tarifaFinal = tarifaEnergiaKwh + tarifaUsoKwh;
+    return tarifaFinal;
+  }
+}

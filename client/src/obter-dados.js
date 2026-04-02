@@ -15,3 +15,12 @@ export async function obterIrradiacao(codigoMunicipio) {
   const irradiacao = await resposta.json();
   return irradiacao;
 }
+
+export async function obterTarifaMunicipio(codigoMunicipio) {
+  const resposta = await fetch(`/api/tarifa/${codigoMunicipio}`);
+  if (!resposta.ok) {
+    throw new Error(`Erro HTTP: ${resposta.status}`);
+  }
+  const irradiacao = await resposta.json();
+  return irradiacao;
+}
