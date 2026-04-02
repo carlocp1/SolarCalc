@@ -73,6 +73,13 @@ export function inicializarSeletorMunicipio() {
       const option = document.createElement("option");
       option.value = municipio.id;
       option.textContent = municipio.nome;
+      // Na base de dados utilizadas, alguns municípios atuais não tem
+      // coordenadas presentes.
+      // Já que esse programa é ilustrativo e não feito para produção,
+      // eles serão desativados.
+      if (!municipio.coordenadas) {
+        option.disabled = true;
+      }
       seletor.append(option);
     }
     optPadrao.selected = true;
