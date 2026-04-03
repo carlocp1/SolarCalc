@@ -40,11 +40,10 @@ function calcularPotNecessaria(gastoMensalKWH, irradiacaoMunicipio) {
 // Por padrão, os sistemas solares calculados por essa calculadora buscam suprir
 // completamente a média de gasto de energia elétrica mensal de uma residência.
 // Num Painéis = Potência do Sistema / Potência de cada painél
-function calcularNumPaineis(gastoMensalReais, tarifaMunicipal, irradiacaoMunicipio) {  
+function calcularNumPaineis(gastoMensalReais, tarifaMunicipal, irradiacaoMunicipio, potPainel) {  
   const gastoKWH = calcularGastoKWH(gastoMensalReais, tarifaMunicipal);
   const potNecessaria = calcularPotNecessaria(gastoKWH, irradiacaoMunicipio);
-  // Por enquanto, o cáuclo é feito apenas com painéis de potência 550 Wp.
-  const potPainel = 0.55;
+  potPainel = potPainel / 1000;
   // Nota, sempre arrendondar para cima, para nunca faltar painéis para cubrir a potência.
   const numPaineis = Math.ceil(potNecessaria / potPainel);
   return numPaineis
@@ -64,7 +63,8 @@ export async function calcularResultados(gastoMensalReais, codigoMunicipio) {
 
   const resultadosPorPainel = [];
   for (const painel of paineis) {
-    const numPaineis = calcularNumPaineis(gastoMensalReais, tarifaMunicipal, irradiacaoMunicipio);
+    const potPainel = painel.potencia;
+    const numPaineis = calcularNumPaineis(gastoMensalReais, tarifaMunicipal, irradiacaoMunicipio, potPainel);
     resultadosPorPainel.push({
       ...painel,
       numPaineis,
