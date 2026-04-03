@@ -1,4 +1,6 @@
-import { writeFile, readFile } from "node:fs/promises";
+import { writeFile, readFile, mkdir } from "node:fs/promises";
+
+const DIRETORIO_DADOS = "server/data";
 
 const conjuntoDados = {
   "tarifas-por-distribuidora": {
@@ -25,6 +27,9 @@ export async function salvarLocalmente(nomeDados, dados, dataModificaçao) {
     throw new Error(`O conjunto de dados ${nomeDados} não é válido.`);
   }
   const arquivo = conjuntoDados[nomeDados].arquivo;
+  // Crie o diretório de dados caso ele não exista.
+  // Caso ele exista, nada acontence.
+  await mkdir(DIRETORIO_DADOS, { recursive: true });
   return writeFile(arquivo, conteudoJSON);
 }
 
