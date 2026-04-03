@@ -54,7 +54,7 @@ function calcularNumPaineis(gastoMensalReais, tarifaMunicipal, irradiacaoMunicip
 function calcularAreaPaineis(numPaineis, areaPainel) {
   // O 1.2 abaixo refere a margem de segurança, pois os painéis não irão ficar 
   // exatamente colados uns aos outros.
-  return numPaineis * areaPainel * 1.2;
+  return (numPaineis * areaPainel * 1.2).toFixed(2);
 }
 
 export async function calcularResultados(gastoMensalReais, codigoMunicipio) {
