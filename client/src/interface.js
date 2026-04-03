@@ -103,6 +103,7 @@ export function criarTabela(resultados) {
   const tabela = document.createElement("table");
   const legenda = document.createElement("caption");
   legenda.innerHTML = "Resultados Para Diferentes Painéis";
+  legenda.style.hidden = true;
   tabela.appendChild(legenda);
 
   // Cabeçalho da tabela.
